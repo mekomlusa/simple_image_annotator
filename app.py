@@ -22,8 +22,9 @@ def tagger():
     labels = app.config["LABELS"]
     not_end = not(app.config["HEAD"] == len(app.config["FILES"]) - 1)
     not_start = not (app.config["HEAD"] == 0)
-    prev_ind = app.config["PREV"]
-    return render_template('tagger.html', not_end=not_end, prev=prev_ind, not_start=not_start, directory=directory, image=image, labels=labels, head=app.config["HEAD"] + 1, len=len(app.config["FILES"]))
+    #prev_ind = app.config["PREV"]
+    already_has_labels = len(labels) > 0
+    return render_template('tagger.html', not_end=not_end, has_label=already_has_labels, not_start=not_start, directory=directory, image=image, labels=labels, head=app.config["HEAD"] + 1, len=len(app.config["FILES"]))
 
 @app.route('/next')
 def next():
@@ -69,15 +70,20 @@ def prev():
 @app.route('/savenew')
 def savenew():
     image = app.config["FILES"][app.config["HEAD"]]
-    with open(app.config["OUT"], 'a') as f:
-        for label in app.config["LABELS"]:
-            f.write(image + "," +
-                    label["id"] + "," +
-                    label["name"] + "," +
-                    str(round(float(label["xMin"]))) + "," +
-                    str(round(float(label["xMax"]))) + "," +
-                    str(round(float(label["yMin"]))) + "," +
-                    str(round(float(label["yMax"]))) + "\n")
+    if len(app.config["LABELS"]) > 0:
+        with open(app.config["OUT"], 'a') as f: # normal cases
+            for label in app.config["LABELS"]:
+                f.write(image + "," +
+                        label["id"] + "," +
+                        label["name"] + "," +
+                        str(round(float(label["xMin"]))) + "," +
+                        str(round(float(label["xMax"]))) + "," +
+                        str(round(float(label["yMin"]))) + "," +
+                        str(round(float(label["yMax"]))) + "\n")
+    else: # remove all
+        saved_output = pd.read_csv(app.config["OUT"])
+        labels_without_this_image = saved_output[saved_output['image'] != image]
+        labels_without_this_image.to_csv(app.config["OUT"], index=False)
     return redirect(url_for('tagger'))
 
 # modify labels route
@@ -85,17 +91,13 @@ def savenew():
 def modify():
     image = app.config["FILES"][app.config["HEAD"]]
     saved_output = pd.read_csv(app.config["OUT"])
-    labels_without_this_image = saved_output[saved_output['image'] != image]
+    labels_without_this_image = saved_output[saved_output['image'] != image].copy(deep=True)
     current_df_len = len(labels_without_this_image)
     for i in range(len(app.config["LABELS"])):
         labels_without_this_image.loc[current_df_len + i] = [image] + list(app.config["LABELS"][i].values())
 
+    labels_without_this_image = labels_without_this_image.sort_values(by=['id', 'image'], ascending=[True, False])
     labels_without_this_image.to_csv(app.config["OUT"], index=False)
-
-    # if current_df_len > 0:
-    #     labels_without_this_image.to_csv(app.config["OUT"], index=False, header=False)
-    # else:
-    #     labels_without_this_image.to_csv(app.config["OUT"], index=False)
 
     return redirect(url_for('tagger'))
 
@@ -114,10 +116,12 @@ def add(id):
 
 @app.route('/remove/<id>')
 def remove(id):
+    #app.config["REMOVING"] = True
     index = int(id) - 1
     del app.config["LABELS"][index]
-    for label in app.config["LABELS"][index:]:
+    for label in app.config["LABELS"][index:]: # reindex for display
         label["id"] = str(int(label["id"]) - 1)
+    print(app.config["LABELS"])
     return redirect(url_for('tagger'))
 
 @app.route('/label/<id>')
@@ -142,7 +146,7 @@ if __name__ == "__main__":
          directory += "/"
     app.config["IMAGES"] = directory
     app.config["LABELS"] = []
-    app.config["PREV"] = False
+    app.config["PREV"]= False
     files = []
     acceptable_file_extensions = ['.png', '.jpg', '.gif']
     for (dirpath, dirnames, filenames) in walk(app.config["IMAGES"]):
@@ -151,7 +155,7 @@ if __name__ == "__main__":
                 files.append(f)
         break
     if files == None:
-        print("No files")
+        print("Error: No files. Exiting.")
         exit()
     app.config["FILES"] = files
     app.config["HEAD"] = 0
@@ -159,7 +163,9 @@ if __name__ == "__main__":
         app.config["OUT"] = "out.csv"
     else:
         app.config["OUT"] = args.out
-    print(files)
-    with open("out.csv",'w') as f:
-        f.write("image,id,name,xMin,xMax,yMin,yMax\n")
+
+    if not os.path.exists(app.config["OUT"]):
+        with open(app.config["OUT"],'w') as f:
+            f.write("image,id,name,xMin,xMax,yMin,yMax\n")
+
     app.run(debug="True")

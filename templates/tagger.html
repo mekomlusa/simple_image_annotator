@@ -44,11 +44,11 @@
                 {% endfor %}
             </div>
 
-            {% if prev %}
-            <a href="/modify" class="btn btn-primary" style="float:left;" type="button"> Modify
+            {% if has_label %}
+            <a href="/modify" class="btn btn-primary" style="float:left;" type="button"> Save
             <span class="glyphicon glyphicon-ok"></span></a>
             {% else %}
-                <a href="/savenew" class="btn btn-primary" style="float:left;" type="button"> Submit
+                <a href="/savenew" class="btn btn-primary" style="float:left;" type="button"> Save
             <span class="glyphicon glyphicon-ok"></span></a>
             {% endif %}
 
@@ -63,7 +63,8 @@
             margin-bottom:
             0px;">
     <div class="row">
-    <text> {{ head }} / {{ len }} </text>
+    <text style="margin-left: 20px;"> {{ head }} / {{ len }} </text>
+    <text style="margin-left: 20px;"> {{ image }} </text>
     {% if not_start %}
     <a href="/prev" class="btn btn-primary" style="float:left;" type="button">
         <span class="glyphicon glyphicon-arrow-left"></span>
