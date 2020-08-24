@@ -27,9 +27,9 @@ def tagger():
 
 @app.route('/next')
 def next():
-    # image = app.config["FILES"][app.config["HEAD"]]
     app.config["HEAD"] = app.config["HEAD"] + 1
     app.config["PREV"] = False
+    image = app.config["FILES"][app.config["HEAD"]]
     # with open(app.config["OUT"],'a') as f:
     #     for label in app.config["LABELS"]:
     #         f.write(image + "," +
@@ -39,13 +39,22 @@ def next():
     #         str(round(float(label["xMax"]))) + "," +
     #         str(round(float(label["yMin"]))) + "," +
     #         str(round(float(label["yMax"]))) + "\n")
-    app.config["LABELS"] = []
+    saved_output = pd.read_csv(app.config["OUT"])
+    past_labels = saved_output[saved_output['image'] == image]
+    if len(past_labels) > 0:
+        app.config["LABELS"] = []
+        for index, row in past_labels.iterrows():
+            app.config["LABELS"].append({"id": str(row['id']), "name": str(row['name']), "xMin": str(row['xMin']),
+                                         "xMax": str(row['xMax']), "yMin": str(row['yMin']), "yMax": str(row['yMax'])})
+    else:
+        app.config["LABELS"] = []
     return redirect(url_for('tagger'))
 
 @app.route('/prev')
 def prev():
     app.config["HEAD"] = app.config["HEAD"] - 1
     app.config["PREV"] = True
+    app.config["LABELS"] = [] # clear existing labels
     # restore labels
     image = app.config["FILES"][app.config["HEAD"]]
     saved_output = pd.read_csv(app.config["OUT"])
@@ -81,10 +90,12 @@ def modify():
     for i in range(len(app.config["LABELS"])):
         labels_without_this_image.loc[current_df_len + i] = [image] + list(app.config["LABELS"][i].values())
 
-    if current_df_len > 0:
-        labels_without_this_image.to_csv(app.config["OUT"], index=False, header=False)
-    else:
-        labels_without_this_image.to_csv(app.config["OUT"], index=False)
+    labels_without_this_image.to_csv(app.config["OUT"], index=False)
+
+    # if current_df_len > 0:
+    #     labels_without_this_image.to_csv(app.config["OUT"], index=False, header=False)
+    # else:
+    #     labels_without_this_image.to_csv(app.config["OUT"], index=False)
 
     return redirect(url_for('tagger'))
 
