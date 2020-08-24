@@ -1,5 +1,18 @@
 # Simple Image Annotator
 
+## Updates
+
+This version has added the following functionalities:
+
+* Move back to previous images: once moved back, saved labels will overlay on the same image
+  * Change labels in previous images - unstable, still testing
+* Click "Submit"/"Modify" to saved labels
+
+TODO:
+* Automatically saved labels if users forget to click "Submit"/"Modify" but click "next" instead
+* Allow users to upload image(s) for labeling
+* Possibly integration with database for persistence
+
 ## Description
 All image annotators I found either didn't work or had some overhead in the setup. So, I tried to make this one simple to run and simple to use.
 ![action](./actionshot.png)
