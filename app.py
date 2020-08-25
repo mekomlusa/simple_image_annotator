@@ -12,6 +12,18 @@ import pandas as pd
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['UPLOAD_PATH'] = './uploaded_images/'
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    # upload images & save
+    if request.method == 'POST' and 'photos' in request.files:
+        for f in request.files.getlist('photos'):
+            f.save(os.path.join(app.config['UPLOAD_PATH'], f.filename))
+            app.config["FILES"].append(f.filename)
+
+        return redirect(url_for('tagger'))
+    return render_template('upload.html')
 
 @app.route('/tagger')
 def tagger():
@@ -30,7 +42,7 @@ def tagger():
 def next():
     # load next image & existing labels
     app.config["HEAD"] = app.config["HEAD"] + 1
-    app.config["PREV"] = False
+
     image = app.config["FILES"][app.config["HEAD"]]
 
     saved_output = pd.read_csv(app.config["OUT"])
@@ -49,7 +61,7 @@ def next():
 @app.route('/prev')
 def prev():
     app.config["HEAD"] = app.config["HEAD"] - 1
-    app.config["PREV"] = True
+
     app.config["LABELS"] = [] # clear existing labels
 
     # restore labels
@@ -134,28 +146,34 @@ def images(f):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('dir', type=str, help='specify the images directory')
+    parser.add_argument('--dir', type=str, help='specify the images directory', required=False)
     parser.add_argument("--out")
     args = parser.parse_args()
-    directory = args.dir
-    if directory[len(directory) - 1] != "/":
-         directory += "/"
-    app.config["IMAGES"] = directory
-    app.config["LABELS"] = []
-    app.config["PREV"] = False
 
-    files = []
-    acceptable_file_extensions = ['.png', '.jpg', '.gif', '.jpeg']
-    for (dirpath, dirnames, filenames) in walk(app.config["IMAGES"]):
-        for f in filenames:
-            if os.path.splitext(f)[1] in acceptable_file_extensions:
-                files.append(f)
-        break
-    if files == None:
-        print("Error: No files. Exiting.")
-        exit()
-    app.config["FILES"] = files
+    app.config["LABELS"] = []
     app.config["HEAD"] = 0
+    app.config["FILES"] = []
+
+    if args.dir is not None:
+        directory = args.dir
+        if directory[len(directory) - 1] != "/":
+             directory += "/"
+        app.config["IMAGES"] = directory
+
+        files = []
+        acceptable_file_extensions = ['.png', '.jpg', '.gif', '.jpeg']
+        for (dirpath, dirnames, filenames) in walk(app.config["IMAGES"]):
+            for f in filenames:
+                if os.path.splitext(f)[1] in acceptable_file_extensions:
+                    files.append(f)
+            break
+        if files == None:
+            print("Error: No files. Exiting.")
+            exit()
+        app.config["FILES"] = files
+    else:
+        app.config['IMAGES'] = app.config['UPLOAD_PATH']
+
     if args.out == None:
         app.config["OUT"] = "out.csv"
     else:
