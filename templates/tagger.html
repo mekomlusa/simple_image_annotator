@@ -20,6 +20,10 @@
         <script>
         var label = function(id, name) {
           window.location.replace("/label/" + id + "?name=" + name);
+        };
+        function submitButtonStyle(id, color) {
+            var elem = document.getElementById(id);
+            elem.style.background = color;
         }
         </script>
         <div class="panel-body">
@@ -29,7 +33,8 @@
                     <div class="input-group">
                         <span class="input-group-addon" id="id">{{ label.id }}</span>
                         {% if label.name %}
-                            <text style="background-color:#E5E7E9;" class="form-control custom-control" style="resize:none">{{ label.name }}</text>
+                            <input id= "{{ label.id }}" value="{{ label.name }}" style="background-color:#E5E7E9;" onkeydown="if (event.keyCode == 13) { label(this.id, this.value); }" onclick="submitButtonStyle(this.id, 'white');" type="text" class="form-control"></input>
+                            <!-- <text style="background-color:#E5E7E9;" class="form-control custom-control" style="resize:none"></text> -->
                             <span class="input-group-btn">
                                 <!-- <button class="btn btn-danger" type="button">-</button> -->
                             </span>

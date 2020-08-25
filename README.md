@@ -7,10 +7,12 @@ This version has added the following functionalities:
 * Move back to previous images: once moved back, saved labels will overlay on the same image
   * Labels can be changed for any images. Latest outputs will be saved in the `.csv` file.
 * Click "Save" to saved labels
+* Allow users to change label name after a bounding box has been drawn (just move your cursor to the input box and it will change white, allowing you to edit)
 
 TODO:
-* Automatically saved labels if users forget to click "Save" but click "next" instead
-* Ability to keep the same bounding box but change label texts
+* ~~Automatically saved labels if users forget to click "Save" but click "next" instead~~
+  * This functionality, once implemented, will mess up with the "load saved labels" function. Also, users are expected to explicitly click "save" to save their changes. Otherwise, labels will not be saved by blindly clicking "next" (it is believed that users have no intention to save too).
+* ~~Ability to keep the same bounding box but change label texts~~
 * Allow users to upload image(s) for labeling
 * Possibly integration with database for persistence
 

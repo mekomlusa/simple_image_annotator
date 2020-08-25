@@ -22,26 +22,20 @@ def tagger():
     labels = app.config["LABELS"]
     not_end = not(app.config["HEAD"] == len(app.config["FILES"]) - 1)
     not_start = not (app.config["HEAD"] == 0)
-    #prev_ind = app.config["PREV"]
+
     already_has_labels = len(labels) > 0
     return render_template('tagger.html', not_end=not_end, has_label=already_has_labels, not_start=not_start, directory=directory, image=image, labels=labels, head=app.config["HEAD"] + 1, len=len(app.config["FILES"]))
 
 @app.route('/next')
 def next():
+    # load next image & existing labels
     app.config["HEAD"] = app.config["HEAD"] + 1
     app.config["PREV"] = False
     image = app.config["FILES"][app.config["HEAD"]]
-    # with open(app.config["OUT"],'a') as f:
-    #     for label in app.config["LABELS"]:
-    #         f.write(image + "," +
-    #         label["id"] + "," +
-    #         label["name"] + "," +
-    #         str(round(float(label["xMin"]))) + "," +
-    #         str(round(float(label["xMax"]))) + "," +
-    #         str(round(float(label["yMin"]))) + "," +
-    #         str(round(float(label["yMax"]))) + "\n")
+
     saved_output = pd.read_csv(app.config["OUT"])
     past_labels = saved_output[saved_output['image'] == image]
+
     if len(past_labels) > 0:
         app.config["LABELS"] = []
         for index, row in past_labels.iterrows():
@@ -49,6 +43,7 @@ def next():
                                          "xMax": str(row['xMax']), "yMin": str(row['yMin']), "yMax": str(row['yMax'])})
     else:
         app.config["LABELS"] = []
+
     return redirect(url_for('tagger'))
 
 @app.route('/prev')
@@ -56,6 +51,7 @@ def prev():
     app.config["HEAD"] = app.config["HEAD"] - 1
     app.config["PREV"] = True
     app.config["LABELS"] = [] # clear existing labels
+
     # restore labels
     image = app.config["FILES"][app.config["HEAD"]]
     saved_output = pd.read_csv(app.config["OUT"])
@@ -146,9 +142,10 @@ if __name__ == "__main__":
          directory += "/"
     app.config["IMAGES"] = directory
     app.config["LABELS"] = []
-    app.config["PREV"]= False
+    app.config["PREV"] = False
+
     files = []
-    acceptable_file_extensions = ['.png', '.jpg', '.gif']
+    acceptable_file_extensions = ['.png', '.jpg', '.gif', '.jpeg']
     for (dirpath, dirnames, filenames) in walk(app.config["IMAGES"]):
         for f in filenames:
             if os.path.splitext(f)[1] in acceptable_file_extensions:
