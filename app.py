@@ -9,6 +9,7 @@ from flask import Flask, redirect, url_for, request
 from flask import render_template
 from flask import send_file
 import pandas as pd
+from pathlib import Path
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -172,6 +173,7 @@ if __name__ == "__main__":
             exit()
         app.config["FILES"] = files
     else:
+        Path(app.config['UPLOAD_PATH']).mkdir(parents=True, exist_ok=True) # create upload folder if not exist already
         app.config['IMAGES'] = app.config['UPLOAD_PATH']
 
     if args.out == None:
