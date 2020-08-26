@@ -36,14 +36,17 @@ $ pip install Flask
 * cd into this directory after cloning the repo
 * Start the app
 ```
-$ python app.py /images/directory
+$ python app.py --dir /images/directory
 ```
 * You can also specify the file you would like the annotations output to (out.csv is the default)
 ```
-$ python app.py /images/directory --out test.csv
+$ python app.py --dir /images/directory --out test.csv
 ```
 * Open http://127.0.0.1:5000/tagger in your browser
     * Only tested on Chrome
+* If you'd like to upload pictures and tag afterwards: run `$ python app.py` directly.
+  * By default, uploaded images will be saved under `uploaded_images`, which is a directory under the project root folder.
+  * In this case, you will visit http://127.0.0.1:5000/upload instead.
 
 ## Output
 * In keeping with simplicity, the output is to a csv file with the following fields
