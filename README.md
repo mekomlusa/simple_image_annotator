@@ -11,6 +11,7 @@ This version has added the following functionalities:
 * When given a folder path, only show images within that folder. Currently supported file extensions: `.png, .jpg, .gif, .jpeg`
 * Filename is shown on the top status bar.
 * Users may upload images for labeling.
+* Click "Clear All" to clear all labels for a given image that has already been labeled.
 
 TODO:
 * ~~Automatically saved labels if users forget to click "Save" but click "next" instead~~

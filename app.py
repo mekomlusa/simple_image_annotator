@@ -81,6 +81,22 @@ def savenew():
 
     return redirect(url_for('tagger'))
 
+@app.route('/clearall')
+def clearall():
+    app.config["LABELS"] = []
+
+    image = app.config["FILES"][app.config["HEAD"]]
+    saved_output = pd.read_csv(app.config["OUT"])
+
+    if image in saved_output['image'].values:
+        labels_without_this_image = saved_output[saved_output['image'] != image]
+        labels_without_this_image = labels_without_this_image.reset_index(drop=True)
+        labels_without_this_image.to_csv(app.config["OUT"], index=False)
+        flash('Cleared all successfully!', 'success')
+        #app.config["EDITING"] = False
+
+    return redirect(url_for('tagger'))
+
 # modify labels route
 @app.route('/modify')
 def modify():
