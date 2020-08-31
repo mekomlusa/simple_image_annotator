@@ -10,17 +10,15 @@ This version has added the following functionalities:
 * Allow users to change label name after a bounding box has been drawn (just move your cursor to the input box, click, and its background will change white, make editing possible)
 * When given a folder path, only show images within that folder. Currently supported file extensions: `.png, .jpg, .gif, .jpeg`
 * Filename is shown on the top status bar.
+* Users may upload images for labeling.
 
 TODO:
 * ~~Automatically saved labels if users forget to click "Save" but click "next" instead~~
   * This functionality, once implemented, will mess up with the "load saved labels" function. Also, users are expected to explicitly click "save" to save their changes. Otherwise, labels will not be saved by blindly clicking "next" (it is believed that users have no intention to save too).
 * ~~Ability to keep the same bounding box but change label texts~~
-* Allow users to upload image(s) for labeling
+* ~~Allow users to upload image(s) for labeling~~
 * Possibly integration with database for persistence
 
-## Known issues
-
-* If you've already saved your labels and would like to continue in a new session, by default your saved labels for the first image won't show. Click the next button and move back, and the labels will render.
 
 ## Description
 All image annotators I found either didn't work or had some overhead in the setup. So, I tried to make this one simple to run and simple to use.
